@@ -7,9 +7,13 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+
 
 public class Server {
-	public static void main(String[] args) {
+	public static void main(String[] args) throws SQLException {
 		int serverPort = 2001;
 		ServerSocket serverSocket = null;
 		ObjectOutputStream toClient = null;
@@ -24,9 +28,15 @@ public class Server {
 				toClient = new ObjectOutputStream(new BufferedOutputStream(socket.getOutputStream()));
 				fromClient = new ObjectInputStream(new BufferedInputStream(socket.getInputStream()));
 				Message msgRequest = (Message) fromClient.readObject();
-				int number = msgRequest.getNumber();
 				
-				toClient.writeObject(new Message(number*number));
+				Connection conn = Database.getConnection();
+				PreparedStatement st = conn.prepareStatement("Insert into student(name,id,gender,year) value(?,?,?,?)");
+				st.setString(1, msgRequest.getName());
+				st.setString(2, msgRequest.getID());
+				st.setString(3, msgRequest.getGender());
+				st.setString(4, msgRequest.getYear());
+				st.execute();
+				toClient.writeObject("Data inserted");
 				toClient.flush();
 			}
 		} catch (IOException e) {
