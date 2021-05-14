@@ -4,6 +4,7 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.sql.*;
 import java.util.Scanner;
 
 public class Client extends UnicastRemoteObject implements ClientInterface {
@@ -66,20 +67,61 @@ public class Client extends UnicastRemoteObject implements ClientInterface {
         
 		Scanner in = new Scanner(System.in);
 		
-		String host = (args.length < 1) ? null : args[0];
 		try {
 		    Registry registry = LocateRegistry.getRegistry(1);
 		    ServerInterface stub = (ServerInterface) registry.lookup("Hello");
-	            
-	            Client client;  
-	            client = new Client(stub);
-	            stub.Register(client);
+		    String login;
+    		String password;
+		    Client client;  
+            client = new Client(stub);
+            System.out.println("Welcome to tic tac toe! Select an option below:\n1. Create a new account.\n2. Start the game.");
+            int choice = in.nextInt();
+            switch(choice) {
+            	case(1):
+	        		System.out.println("Enter your new username:");
+	        		login = in.next();
+	        		System.out.println("Enter your new password:");
+	        		password = in.next();
+	        		stub.createAccount(login, password);
+            		break;
+            	case(2):
+	        		System.out.println("Enter your username:");
+	        		login = in.next();
+	        		System.out.println("Enter your password:");
+	        		password = in.next();
+	        		int Check=0;
+	        		try {
+	        			int result = 0;
+	        			Class.forName("com.mysql.cj.jdbc.Driver");
+	        			Connection con = 
+	        			DriverManager.getConnection("jdbc:mysql://localhost:3306/tictactoe", "newuser", "password");
 
-	            stub.initializeBoard();
-	            stub.checkStart();
-	            stub.startGame();
-	            
-		    
+	        			Statement stmt = con.createStatement();
+	        			ResultSet rs=stmt.executeQuery("select count(*) from login where login=\""+login+"\" AND password=\""+password+"\"");
+	        			if(rs.next()) {
+	        				Check=rs.getInt(1);
+	        			}
+	        			con.close();
+	        			
+	        		} catch (Exception e) {
+	        			System.out.println(e);
+	        		}
+	        		if(Check==1) {
+	        			System.out.println("login successful: Starting game...");
+	        			stub.Register(client);
+	    	            
+	    	            stub.initializeBoard();
+	    	            stub.checkStart();
+	    	            stub.startGame();
+	        		}
+	        		else {
+	        			System.out.println("login failed");
+	        		}
+	        		break;
+	        	default:
+	        		System.out.println("No option like this exists.");
+	            }
+	            		    
 		} catch (Exception e) {
 		    System.err.println("Client exception: " + e.toString());
 		    e.printStackTrace();

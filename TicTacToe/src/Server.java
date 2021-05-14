@@ -1,5 +1,9 @@
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
@@ -12,9 +16,10 @@ public class Server implements ServerInterface {
 	public static int playerNum=1;
 	public static char board[][]= new char[3][3];
 	@Override
-	public void Register(ClientInterface Client) throws RemoteException {
+	public int Register(ClientInterface Client) throws RemoteException {
 		Clients.add(Client);
 		clientNum++;
+		return 0;
 	}
 	public Server() throws RemoteException{
 		Clients = new ArrayList<ClientInterface>();
@@ -25,7 +30,6 @@ public class Server implements ServerInterface {
             Clients.get(1).drawBoard(board);
         }
 	}
-
 	@Override
 	public void initializeBoard() throws RemoteException {
         for(int y=0;y<3;y++) {
@@ -126,5 +130,23 @@ public class Server implements ServerInterface {
 		    System.err.println("Server exception: " + e.toString());
 		    e.printStackTrace();
 		}
-	    }   
+	    }
+	@Override
+	public void createAccount(String login, String password) throws RemoteException {
+		try {
+			int result = 0;
+			Class.forName("com.mysql.cj.jdbc.Driver");
+			Connection con = 
+			DriverManager.getConnection("jdbc:mysql://localhost:3306/tictactoe", "newuser", "password");
+
+			Statement stmt = con.createStatement();
+			stmt.executeUpdate("insert into login values(\""+login+"\",\""+password+"\")");
+			
+			
+			con.close();
+			
+		} catch (Exception e) {
+			System.out.println(e);
+		}
+	}   
 }
