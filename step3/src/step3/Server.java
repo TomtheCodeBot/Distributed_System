@@ -30,7 +30,7 @@ public class Server {
 				Message msgRequest = (Message) fromClient.readObject();
 				
 				Connection conn = Database.getConnection();
-				PreparedStatement st = conn.prepareStatement("Insert into student(name,id,gender,year) value(?,?,?,?)");
+				PreparedStatement st = conn.prepareStatement("Insert into table_name(name,id,gender,year) values(?,?,?,?)");
 				st.setString(1, msgRequest.getName());
 				st.setString(2, msgRequest.getID());
 				st.setString(3, msgRequest.getGender());

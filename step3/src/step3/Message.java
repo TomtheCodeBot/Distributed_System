@@ -7,7 +7,7 @@ public final class Message implements Serializable {
 	private String ID;
 	private String Year;
 	private String Gender;
-	Message(String name, String ID, String Year,String Gender) {
+	public Message(String name, String ID, String Year,String Gender) {
 		this.name = name;
 		this.ID = ID;
 		this.Year = Year;

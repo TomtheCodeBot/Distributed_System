@@ -13,7 +13,6 @@ public class Database
     {
       Class.forName("org.sqlite.JDBC");
       return DriverManager.getConnection("jdbc:sqlite:distrubuted_system.sqlite");
-      
     }
     catch (ClassNotFoundException|SQLException ex)
     {
